@@ -1,0 +1,725 @@
+# COPY AND PASTE ON https://editor-next.swagger.io/
+
+openapi: 3.1.0
+info:
+  title: Artist Scout API
+  contact:
+    email: el19055@mail.ntua.gr
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://artist-scout.app/api/v1
+tags:
+  - name: Artist
+  - name: Venue
+  - name: Event
+  - name: Multimedia
+paths:
+  /artist:
+    post:
+      tags:
+        - Artist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Artist'
+      responses:
+        '201':
+          description: 'Artist created'
+        '400':
+          description: 'Invalid input'
+  
+  /artist/{artist_id}:
+    get:
+      tags:
+        - Artist
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artist'
+        '404':
+          description: Artist not found
+    put:
+      tags:
+        - Artist
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Artist'
+      responses:
+        '200':
+          description: Artist updated successfully
+        '404':
+          description: Artist not found
+    delete:
+      tags:
+        - Artist
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Artist deleted successfully
+        '404':
+          description: Artist not found
+  
+  /venue:
+    post:
+      tags:
+        - Venue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+      responses:
+        '201':
+          description: 'Venue created'
+        '400':
+          description: 'Invalid input'
+  
+  /venue/{venue_id}:
+    get:
+      tags:
+        - Venue
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venue'
+        '404':
+          description: Artist not found
+    put:
+      tags:
+        - Venue
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+      responses:
+        '200':
+          description: Venue updated successfully
+        '404':
+          description: Venue not found
+    delete:
+      tags:
+        - Venue
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Venue deleted successfully
+        '404':
+          description: Venue not found
+  
+  /events:
+    get:
+      tags:
+        - Event
+      parameters:
+        - name: venues
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            style: form
+            explode: false
+        - name: artists
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            style: form
+            explode: false
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 5           
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Retrieved events successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          description: Request error
+
+  /venues:
+    get:
+      tags:
+        - Venue
+      parameters:
+        - name: venue_type
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [bar, cafe, restaurant, gallery, museum, shop, park, other]
+            style: form
+            explode: false
+        - name: art_type
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [ painting, sculpture, music, dance, theater, photography, digital_art, other]
+        - name: center
+          description: Coordinates of center point of geo-query
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: radius
+          description: Radius in meters centered around center point
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Retrieved venues successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Venue'
+        '400':
+          description: Request error
+  
+  /artists:
+    get:
+      tags:
+        - Artist
+      parameters:
+        - name: art_type
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [ painting, sculpture, music, dance, theater, photography, digital_art, other]
+        - name: genres
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: center
+          description: Coordinates of center point of geo-query
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: radius
+          description: Radius in meters centered around center point
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Retrieved artists successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Artist'
+        '400':
+          description: Request error
+
+  /event/{artist_id}:
+    get:
+      tags:
+      - Event
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Event retrieved successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+    post:
+      tags:
+        - Event
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '201':
+          description: 'Event created'
+        '400':
+          description: 'Invalid input'
+
+    put:
+      tags:
+        - Event
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '200':
+          description: 'Event updated'
+        '400':
+          description: 'Invalid input'
+      
+    
+    delete:
+      tags:
+        - Event
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'Event deleted'
+        '400':
+          description: 'Invalid input'
+    
+  /song/{artist_id}:
+    post:
+      tags:
+        - Multimedia
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          audio/mpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Song uploaded successfully
+        '400':
+          description: Invalid input
+    get:
+      tags:
+        - Multimedia
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string        
+      responses:
+        '200':
+          description: Song uploaded successfully
+          required: true
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid input
+    put:
+      tags:
+        - Multimedia
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          audio/mpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Song updated successfully
+        '400':
+          description: Invalid input
+    delete:
+      tags:
+        - Multimedia
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string        
+      responses:
+        '200':
+          description: Song deleted successfully
+        '400':
+          description: Invalid input
+  
+  /profile_pic/{artist_id}:
+    post:
+      tags:
+        - Multimedia
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Profile picture uploaded successfully
+        '400':
+          description: Invalid input
+    get:
+      tags:
+        - Multimedia
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string        
+      responses:
+        '200':
+          description: Profile picture uploaded successfully
+          required: true
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid input
+    put:
+      tags:
+        - Multimedia
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Profile picture updated successfully
+        '400':
+          description: Invalid input
+    delete:
+      tags:
+        - Multimedia
+      parameters:
+        - name: artist_id
+          in: path
+          required: true
+          schema:
+            type: string        
+      responses:
+        '200':
+          description: Profile picture deleted successfully
+        '400':
+          description: Invalid input
+    
+  /venue_pic/{venue_id}:
+    post:
+      tags:
+        - Multimedia
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Profile picture uploaded successfully
+        '400':
+          description: Invalid input
+    get:
+      tags:
+        - Multimedia
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string        
+      responses:
+        '200':
+          description: Picture uploaded successfully
+          required: true
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid input
+    put:
+      tags:
+        - Multimedia
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Picture updated successfully
+        '400':
+          description: Invalid input
+    delete:
+      tags:
+        - Multimedia
+      parameters:
+        - name: venue_id
+          in: path
+          required: true
+          schema:
+            type: string        
+      responses:
+        '200':
+          description: Picture deleted successfully
+        '400':
+          description: Invalid input
+
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+      required: [street, city, postal_code, country]
+    Event:
+      type: object
+      properties:
+        title:
+          type: string
+        artist_id:
+          type: string
+        venue_id:
+          type: string
+        date:
+          type: string
+          format: date
+        time:
+          type: string
+          format: time
+        last_modified:
+          type: string
+          format: date-time
+      required: [title, date, time]
+
+    Artist:
+      type: object
+      properties:
+        name:
+          type: string
+        about:
+          type: string
+        city:
+          type: string
+        coordinates:
+          type: string
+        art_type:
+          type: string
+          enum: [ painting, sculpture, music, dance, theater, photography, digital_art, other]
+        genres:
+          type: array
+          items:
+            type: string
+        profile_picture:
+          type: string
+          format: uri
+        sample_song:
+          type: object
+          properties:
+            audio_file:
+              type: string
+              format: uri
+            title:
+              type: string
+          required:
+            - audio_file
+            - title
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          pattern: ^[+]?[0-9]*$
+        spotify:
+          type: string
+          format: uri
+        youtube:
+          type: string
+          format: uri
+        upcoming_event:
+          $ref: '#/components/schemas/Event'
+        last_modified:
+          type: string
+          format: date-time
+    Venue:
+      type: object
+      properties:
+        name:
+          type: string
+        about:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          pattern: ^[+]?[0-9]*$
+        address:
+          $ref: '#/components/schemas/Address'
+        coordinates:
+          type: string
+        venue_type:
+          type: string
+          enum: [bar, cafe, restaurant, gallery, museum, shop, park, other]
+        art_type:
+          type: string
+          enum: [ painting, sculpture, music, dance, theater, photography, digital_art, other]
+        picture:
+          type: string
+          format: uri
+        upcoming_events:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        last_modified:
+          type: string
+          format: date-time

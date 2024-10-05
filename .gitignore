@@ -1,0 +1,11 @@
+venv/
+
+static/*/*
+
+# Logs
+logs/
+
+# IDE specific files
+.vscode/
+
+*__pycache__/
