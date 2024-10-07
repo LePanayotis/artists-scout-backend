@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 
 
 from ..middleware.auth import auth_artist
-from ..models.common import ArtType, Event
+from ..models.common import ArtType, Event, ReturnMessage
 from ..mongo import artists_db, events_db
 from ..models.artist import Artist, ArtistPostModel
 
@@ -58,8 +58,8 @@ async def get_artist(artist_id: str) -> Artist:
     return artist_data
 
 
-@router.put('/artist/{artist_id}', response_model=None, dependencies=[Depends(auth_artist)])
-async def put_artist(artist_id: str, artist: dict) -> None:
+@router.put('/artist/{artist_id}', response_model=ReturnMessage, dependencies=[Depends(auth_artist)])
+async def put_artist(artist_id: str, artist: dict) -> ReturnMessage:
     immutable_fields = {"artist_id", "profile_pic", "sample_song"}
     update_fields = {key: artist[key] for key in artist.keys() if key in Artist.model_fields and key not in immutable_fields}
     if update_fields:
@@ -68,11 +68,11 @@ async def put_artist(artist_id: str, artist: dict) -> None:
         await artists_db.update_one({"artist_id": artist_id}, {"$set": update_fields})
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while updating the artist: {str(e)}")
-    return {"message": "Artist updated successfully"}
+    return ReturnMessage("Artist updated successfully")
 
 
-@router.delete('/artist/{artist_id}', response_model=None, dependencies=[Depends(auth_artist)])
-async def delete_artist(artist_id: str) -> None:
+@router.delete('/artist/{artist_id}', response_model=ReturnMessage, dependencies=[Depends(auth_artist)])
+async def delete_artist(artist_id: str) -> ReturnMessage:
     try:
         await asyncio.gather(
             artists_db.delete_one({"artist_id": artist_id}),
@@ -80,7 +80,7 @@ async def delete_artist(artist_id: str) -> None:
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while deleting the artist: {str(e)}")
-    return {"message": "Artist deleted successfully"}
+    return ReturnMessage("Artist deleted successfully")
 
 
 ### TODO: Implement the get_artists endpoint

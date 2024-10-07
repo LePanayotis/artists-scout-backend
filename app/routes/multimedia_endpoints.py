@@ -76,7 +76,7 @@ async def get_profile_pic(artist_id: str) -> bytes:
 
 
 @router.delete('/profile_pic/{artist_id}', response_model=ReturnMessage, dependencies=[Depends(auth_artist)])
-async def delete_profile_pic(artist_id: str) -> None:
+async def delete_profile_pic(artist_id: str) -> ReturnMessage:
     artist = await find_artist(artist_id)
     if artist["profile_pic"] is not None:
         if os.path.exists(artist["profile_pic"]):
@@ -127,7 +127,7 @@ async def get_song(artist_id: str) -> bytes:
 
 
 @router.delete('/song/{artist_id}', response_model=ReturnMessage, dependencies=[Depends(auth_artist)])
-async def delete_song(artist_id: str) -> None:
+async def delete_song(artist_id: str) -> ReturnMessage:
 
     artist = await find_artist(artist_id)
 
@@ -179,7 +179,7 @@ async def get_profile_pic(venue_id: str) -> bytes:
 
 
 @router.delete('/venue_pic/{venue_id}', response_model=ReturnMessage, dependencies=[Depends(auth_venue)])
-async def delete_profile_pic(venue_id: str) -> None:
+async def delete_profile_pic(venue_id: str) -> ReturnMessage:
     venue = await find_venue(venue_id)
     if venue["venue_pic"] is not None:
         if os.path.exists(venue["venue_pic"]):
