@@ -1,6 +1,8 @@
 from fastapi import FastAPI
-from .routes import artists, events, venues, multimedia_endpoints
+from .routes import artists, events, venues, multimedia_endpoints, auth
 import uvicorn
+
+from .config import config
 
 app = FastAPI(
     title='Artist Scout API',
@@ -17,9 +19,9 @@ app.include_router(artists.router)
 app.include_router(events.router)
 app.include_router(multimedia_endpoints.router)
 app.include_router(venues.router)
-
+app.include_router(auth.router)
 
 if __name__ == "__main__":
-    uvicorn.run(app=app, host="127.0.0.1", port=8000)
+    uvicorn.run(app=app, host=config.server_address, port=config.port)
 
 

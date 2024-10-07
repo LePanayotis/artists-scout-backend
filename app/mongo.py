@@ -1,11 +1,10 @@
 import motor.motor_asyncio
 
-### Download and create your own mongo instance
-MONGO_DETAILS = 'mongodb://127.0.0.1:27017'
+from .config import config
 
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
+client = motor.motor_asyncio.AsyncIOMotorClient(config.mongo_url)
 
-database = client['artist-scout']
+database = client[config.mongo_main_db]
 
 venues_db = database.get_collection('venues')
 artists_db = database.get_collection('artists')

@@ -9,14 +9,14 @@ from ..middleware.auth import auth_artist
 from ..models.common import ArtType, Event, ReturnMessage
 from ..mongo import artists_db, events_db
 from ..models.artist import Artist, ArtistPostModel
-
+from ..config import config
 router = APIRouter(
     tags=['Artist'],
     responses={404: {"description": "Not found"}},
 )
 
-profile_pic_base_url = "http://127.0.0.1:8000/profile_pic"
-song_base_url = "http://127.0.0.1:8000/song"
+profile_pic_base_url = config.profile_pic_base_url
+song_base_url = config.song_base_url
 
 
 
