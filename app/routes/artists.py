@@ -2,8 +2,10 @@ import asyncio
 import os
 from datetime import datetime
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Request
 
+
+from ..middleware.auth import auth_artist
 from ..models.common import ArtType, Event
 from ..mongo import artists_db, events_db
 from ..models.artist import Artist, ArtistPostModel
@@ -15,6 +17,8 @@ router = APIRouter(
 
 profile_pic_base_url = "http://127.0.0.1:8000/profile_pic"
 song_base_url = "http://127.0.0.1:8000/song"
+
+
 
 @router.post('/artist', response_model=Artist, response_model_exclude={"password"})
 async def post_artist(artist: ArtistPostModel =  ...)->Artist:
@@ -54,7 +58,7 @@ async def get_artist(artist_id: str) -> Artist:
     return artist_data
 
 
-@router.put('/artist/{artist_id}', response_model=None)
+@router.put('/artist/{artist_id}', response_model=None, dependencies=[Depends(auth_artist)])
 async def put_artist(artist_id: str, artist: dict) -> None:
     immutable_fields = {"artist_id", "profile_pic", "sample_song"}
     update_fields = {key: artist[key] for key in artist.keys() if key in Artist.model_fields and key not in immutable_fields}
@@ -67,7 +71,7 @@ async def put_artist(artist_id: str, artist: dict) -> None:
     return {"message": "Artist updated successfully"}
 
 
-@router.delete('/artist/{artist_id}', response_model=None)
+@router.delete('/artist/{artist_id}', response_model=None, dependencies=[Depends(auth_artist)])
 async def delete_artist(artist_id: str) -> None:
     try:
         await asyncio.gather(

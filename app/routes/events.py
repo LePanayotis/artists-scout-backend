@@ -1,9 +1,10 @@
 from typing import List, Optional, Annotated
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import Field
 
 from ..models.common import Event
 from ..mongo import events_db
+from ..middleware.auth import auth_artist
 
 router = APIRouter(
     tags=['Event'],
@@ -21,7 +22,7 @@ async def get_event(artist_id: str) -> Event:
     return event_data
 
 
-@router.put('/event/{artist_id}', response_model=None)
+@router.put('/event/{artist_id}', response_model=None, dependencies=[Depends(auth_artist)])
 async def post_event(artist_id: str, event: Event = ...) -> dict:
     try:
         await events_db.update_one({"artist_id": artist_id }, event.model_dump(exclude={"artist_id"}))

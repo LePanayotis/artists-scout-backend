@@ -1,10 +1,12 @@
 from __future__ import annotations
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import FileResponse
 from ..models.common import ReturnMessage
 from ..mongo import artists_db, venues_db
+from ..middleware.auth import auth_artist, auth_venue
+
 from fastapi import UploadFile, File
 import os
 router = APIRouter(
@@ -34,7 +36,7 @@ async def find_venue(artist_id: str)->dict:
         raise HTTPException(status_code=404, detail="Venue not found")
     return venue
 
-@router.put('/profile_pic/{artist_id}', response_model=None)
+@router.put('/profile_pic/{artist_id}', response_model=None, dependencies=[Depends(auth_artist)])
 async def post_profile_pic(artist_id: str, img: UploadFile = File(...)) -> ReturnMessage:
     
     file_format = img.filename.split(".")[-1]
@@ -73,7 +75,7 @@ async def get_profile_pic(artist_id: str) -> bytes:
     return FileResponse(artist["profile_pic"], media_type=f"image/{file_format}")
 
 
-@router.delete('/profile_pic/{artist_id}', response_model=None)
+@router.delete('/profile_pic/{artist_id}', response_model=ReturnMessage, dependencies=[Depends(auth_artist)])
 async def delete_profile_pic(artist_id: str) -> None:
     artist = await find_artist(artist_id)
     if artist["profile_pic"] is not None:
@@ -88,7 +90,7 @@ async def delete_profile_pic(artist_id: str) -> None:
 
 
 
-@router.put('/song/{artist_id}', response_model=None)
+@router.put('/song/{artist_id}', response_model=ReturnMessage, dependencies=[Depends(auth_artist)])
 async def post_song(artist_id: str, audio: UploadFile = File(...)) -> ReturnMessage:
     file_format = audio.filename.split(".")[-1]
     song_title = ".".join(audio.filename.split(".")[:-1])
@@ -124,7 +126,7 @@ async def get_song(artist_id: str) -> bytes:
     return FileResponse(artist["sample_song"]["audio_file"], media_type="audio/mpeg")
 
 
-@router.delete('/song/{artist_id}', response_model=None)
+@router.delete('/song/{artist_id}', response_model=ReturnMessage, dependencies=[Depends(auth_artist)])
 async def delete_song(artist_id: str) -> None:
 
     artist = await find_artist(artist_id)
@@ -140,7 +142,7 @@ async def delete_song(artist_id: str) -> None:
     return ReturnMessage(message="Sample song deleted successfully")
 
 
-@router.put('/venue_pic/{venue_id}', response_model=None)
+@router.put('/venue_pic/{venue_id}', response_model=ReturnMessage, dependencies=[Depends(auth_venue)])
 async def post_profile_pic(venue_id: str, img: UploadFile = File(...)) -> ReturnMessage:
     
     file_format = img.filename.split(".")[-1]
@@ -176,7 +178,7 @@ async def get_profile_pic(venue_id: str) -> bytes:
     return FileResponse(venue["venue_pic"], media_type=f"image/{file_format}")
 
 
-@router.delete('/venue_pic/{venue_id}', response_model=None)
+@router.delete('/venue_pic/{venue_id}', response_model=ReturnMessage, dependencies=[Depends(auth_venue)])
 async def delete_profile_pic(venue_id: str) -> None:
     venue = await find_venue(venue_id)
     if venue["venue_pic"] is not None:
