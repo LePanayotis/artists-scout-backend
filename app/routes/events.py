@@ -2,7 +2,7 @@ from typing import List, Optional, Annotated
 from fastapi import APIRouter, HTTPException
 from pydantic import Field
 
-from ..models.schemata import Event
+from ..models.common import Event
 from ..mongo import events_db
 
 router = APIRouter(

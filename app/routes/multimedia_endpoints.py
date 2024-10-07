@@ -3,7 +3,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from ..models.schemata import ReturnMessage
+from ..models.common import ReturnMessage
 from ..mongo import artists_db, venues_db
 from fastapi import UploadFile, File
 import os
@@ -67,8 +67,9 @@ async def get_profile_pic(artist_id: str) -> bytes:
         raise HTTPException(status_code=500, detail="Profile pic not found on server")
     
     file_format = artist["profile_pic"].split(".")[-1]
-    if file_format is "jpg":
+    if file_format == "jpg":
         file_format = "jpeg"
+    print(file_format)
     return FileResponse(artist["profile_pic"], media_type=f"image/{file_format}")
 
 
@@ -170,7 +171,7 @@ async def get_profile_pic(venue_id: str) -> bytes:
         raise HTTPException(status_code=500, detail="Venue pic not found on server")
     
     file_format = venue["venue_pic"].split(".")[-1]
-    if file_format is "jpg":
+    if file_format == "jpg":
         file_format = "jpeg"
     return FileResponse(venue["venue_pic"], media_type=f"image/{file_format}")
 
@@ -182,8 +183,7 @@ async def delete_profile_pic(venue_id: str) -> None:
         if os.path.exists(venue["venue_pic"]):
             os.remove(venue["venue_pic"])
         try:
-            last_modified = datetime.now()
-            await venues_db.update_one({"venue_id": venue_id}, {"$set": {"venue_pic": None, "last_modified": last_modified}})
+            await venues_db.update_one({"venue_id": venue_id}, {"$set": {"venue_pic": None, "last_modified": datetime.now()}})
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"An error occurred while deleting the venue pic: {str(e)}")
     return ReturnMessage(message="Venue pic deleted successfully")
